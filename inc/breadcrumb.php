@@ -28,21 +28,21 @@ if (!function_exists('the_breadcrumb')) :
     // Home link
     echo '<li class="breadcrumb-item"><a aria-label="' . esc_attr__('Home', 'bootscore') . '" class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(home_url()) . '">' . wp_kses_post(apply_filters('bootscore/icon/home', '<i class="fa-solid fa-house" aria-hidden="true"></i>')) . '<span class="visually-hidden">' . esc_html__('Home', 'bootscore') . '</span></a></li>' . PHP_EOL;
     
-    // Archives (Category, Author, Month), display the archive title
-    if ( is_archive() ) {
-      echo '<li class="breadcrumb-item active" aria-current="page">' . get_the_archive_title() . '</li>';
-    }   
-    
-    // Search results, display the search query
-    elseif (is_search()) {
-      echo '<li class="breadcrumb-item active" aria-current="page">' . 
-       sprintf(
-         /* translators: %s: search query */
-         esc_html__('Search Results for: %s', 'bootscore'),
-         esc_html(get_search_query())
-       ) . 
-       '</li>' . PHP_EOL;
-    }    
+    // Category archive
+    if (is_category()) {
+      $current_cat_id = get_queried_object_id();
+      if ($current_cat_id) {
+        $ancestors = array_reverse(get_ancestors($current_cat_id, 'category'));
+        foreach ($ancestors as $ancestor_id) {
+          $ancestor = get_category($ancestor_id);
+          if ($ancestor && !is_wp_error($ancestor)) {
+            echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_term_link($ancestor)) . '">' . esc_html($ancestor->name) . '</a></li>' . PHP_EOL;
+          }
+        }
+        // current category as text only
+        echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(single_cat_title('', false)) . '</li>' . PHP_EOL;
+      }
+    }
     
     // Single post
     elseif (is_single()) {
@@ -57,25 +57,47 @@ if (!function_exists('the_breadcrumb')) :
     }
     
     // Pages, handle parent pages and current page
-    elseif ( is_page() ) {
-      if ( $parent_id = wp_get_post_parent_id( get_the_ID() ) ) {
-        $parents = [];
-        while ( $parent_id ) {
+    elseif (is_page()) {
+      $parent_id = wp_get_post_parent_id(get_the_ID());
+      
+      if ($parent_id) {
+        $parents = array();
+        while ($parent_id) {
           $page = get_post($parent_id);
-          $parents[] = '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . get_permalink($page->ID) . '">' . get_the_title($page->ID) . '</a></li>';
-          $parent_id = wp_get_post_parent_id($page->ID);
+          if ($page && !is_wp_error($page)) {
+            $parents[] = '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_permalink($page->ID)) . '">' . esc_html(get_the_title($page->ID)) . '</a></li>' . PHP_EOL;
+            $parent_id = wp_get_post_parent_id($page->ID);
+          } else {
+            break;
+          }
         }
-        $parents = array_reverse($parents); // Reverse the array to display from top-level to current page
-        echo implode( '', $parents ); // Output parents without separator
+        $parents = array_reverse($parents);
+        echo implode('', $parents);
       }
 
       // Display the current page title (active breadcrumb item)
-      echo '<li class="breadcrumb-item active" aria-current="page">' . get_the_title() . '</li>';
+      echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(get_the_title()) . '</li>' . PHP_EOL;
+    }
+    
+    // Search results, display the search query
+    elseif (is_search()) {
+      echo '<li class="breadcrumb-item active" aria-current="page">' . 
+       sprintf(
+         /* translators: %s: search query */
+         esc_html__('Search Results for: %s', 'bootscore'),
+         esc_html(get_search_query())
+       ) . 
+       '</li>' . PHP_EOL;
+    }
+    
+    // Other archives (tags, custom taxonomies, date, author) - MUST BE LAST
+    elseif (is_archive()) {
+      echo '<li class="breadcrumb-item active" aria-current="page">' . 
+           wp_strip_all_tags(get_the_archive_title()) . 
+           '</li>' . PHP_EOL;
     }
 
     echo '</ol>' . PHP_EOL;
     echo '</nav>' . PHP_EOL;
   }
-
-  add_filter('breadcrumbs', 'breadcrumbs');
 endif;
