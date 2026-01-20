@@ -43,6 +43,7 @@ if (!function_exists('the_breadcrumb')) :
         echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(single_cat_title('', false)) . '</li>' . PHP_EOL;
       }
     }
+    
     // Single post
     elseif (is_single()) {
       $cat_ids = wp_get_post_categories(get_the_ID());
@@ -54,9 +55,22 @@ if (!function_exists('the_breadcrumb')) :
       }
       echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(get_the_title()) . '</li>' . PHP_EOL;
     }
-    // Page
-    elseif (is_page()) {
-      echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(get_the_title()) . '</li>' . PHP_EOL;
+    
+    // Pages, handle parent pages and current page
+    elseif ( is_page() ) {
+      if ( $parent_id = wp_get_post_parent_id( get_the_ID() ) ) {
+        $parents = [];
+        while ( $parent_id ) {
+          $page = get_post($parent_id);
+          $parents[] = '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . get_permalink($page->ID) . '">' . get_the_title($page->ID) . '</a></li>';
+          $parent_id = wp_get_post_parent_id($page->ID);
+        }
+        $parents = array_reverse($parents); // Reverse the array to display from top-level to current page
+        echo implode( '', $parents ); // Output parents without separator
+      }
+
+      // Display the current page title (active breadcrumb item)
+      echo '<li class="breadcrumb-item active" aria-current="page">' . get_the_title() . '</li>';
     }
 
     echo '</ol>' . PHP_EOL;
