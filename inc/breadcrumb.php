@@ -4,7 +4,7 @@
  * Breadcrumb
  *
  * @package Bootscore
- * @version 6.3.1
+ * @version 6.4.0
  */
 
 
@@ -27,22 +27,22 @@ if (!function_exists('the_breadcrumb')) :
 
     // Home link
     echo '<li class="breadcrumb-item"><a aria-label="' . esc_attr__('Home', 'bootscore') . '" class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(home_url()) . '">' . wp_kses_post(apply_filters('bootscore/icon/home', '<i class="fa-solid fa-house" aria-hidden="true"></i>')) . '<span class="visually-hidden">' . esc_html__('Home', 'bootscore') . '</span></a></li>' . PHP_EOL;
-
-    // Category archive
-    if (is_category()) {
-      $current_cat_id = get_queried_object_id();
-      if ($current_cat_id) {
-        $ancestors = array_reverse(get_ancestors($current_cat_id, 'category'));
-        foreach ($ancestors as $ancestor_id) {
-          $ancestor = get_category($ancestor_id);
-          if ($ancestor && !is_wp_error($ancestor)) {
-            echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_term_link($ancestor)) . '">' . esc_html($ancestor->name) . '</a></li>' . PHP_EOL;
-          }
-        }
-        // current category as text only
-        echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(single_cat_title('', false)) . '</li>' . PHP_EOL;
-      }
-    }
+    
+    // Archives (Category, Author, Month), display the archive title
+    if ( is_archive() ) {
+      echo '<li class="breadcrumb-item active" aria-current="page">' . get_the_archive_title() . '</li>';
+    }   
+    
+    // Search results, display the search query
+    elseif (is_search()) {
+      echo '<li class="breadcrumb-item active" aria-current="page">' . 
+       sprintf(
+         /* translators: %s: search query */
+         esc_html__('Search Results for: %s', 'bootscore'),
+         esc_html(get_search_query())
+       ) . 
+       '</li>' . PHP_EOL;
+    }    
     
     // Single post
     elseif (is_single()) {
