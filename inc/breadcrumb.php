@@ -57,6 +57,7 @@ if (!function_exists('the_breadcrumb')) :
     }
     
     // Pages, handle parent pages and current page
+    // https://github.com/bootscore/bootscore/pull/1152
     elseif (is_page()) {
       $parent_id = wp_get_post_parent_id(get_the_ID());
       
