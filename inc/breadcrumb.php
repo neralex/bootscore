@@ -16,6 +16,7 @@ defined('ABSPATH') || exit;
  * Breadcrumb
  */
 if (!function_exists('the_breadcrumb')) :
+
   function the_breadcrumb() {
 
     if (is_home()) {
@@ -57,7 +58,6 @@ if (!function_exists('the_breadcrumb')) :
     }
     
     // Pages, handle parent pages and current page
-    // https://github.com/bootscore/bootscore/pull/1152
     elseif (is_page()) {
       $parent_id = wp_get_post_parent_id(get_the_ID());
       
@@ -101,4 +101,25 @@ if (!function_exists('the_breadcrumb')) :
     echo '</ol>' . PHP_EOL;
     echo '</nav>' . PHP_EOL;
   }
+
 endif;
+
+
+/**
+ * Breadcrumb Shortcode
+ * Usage: [bs-breadcrumb]
+ * 
+ * Displays the breadcrumb navigation within content areas.
+ * Useful for widget areas or the Page Blank template where breadcrumbs cannot be added via action hook.
+ */
+function bootscore_breadcrumb_shortcode($atts) {
+  // Skip in admin to prevent JSON errors during editor saves
+  if (is_admin()) {
+    return '';
+  }
+  
+  ob_start();
+  the_breadcrumb();
+  return ob_get_clean();
+}
+add_shortcode('bs-breadcrumb', 'bootscore_breadcrumb_shortcode');
