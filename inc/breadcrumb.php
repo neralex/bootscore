@@ -45,15 +45,39 @@ if (!function_exists('the_breadcrumb')) :
       }
     }
     
-    // Single post
+    // Custom Post Type Archive
+    elseif (is_post_type_archive()) {
+      // Remove "Archives: " prefix from archive title
+      $archive_title = preg_replace('/^\w+: /', '', get_the_archive_title());
+      echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(wp_strip_all_tags($archive_title)) . '</li>' . PHP_EOL;
+    }
+    
+    // Single post (regular posts and custom post types)
     elseif (is_single()) {
-      $cat_ids = wp_get_post_categories(get_the_ID());
-      foreach ($cat_ids as $cat_id) {
-        $cat = get_category($cat_id);
-        if ($cat && !is_wp_error($cat)) {
-          echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_term_link($cat)) . '">' . esc_html($cat->name) . '</a></li>' . PHP_EOL;
+      $post_type = get_post_type();
+      $post_type_obj = get_post_type_object($post_type);
+      
+      // Show CPT archive link if it has an archive
+      if ($post_type !== 'post' && $post_type_obj && $post_type_obj->has_archive) {
+        $archive_link = get_post_type_archive_link($post_type);
+        $archive_title = $post_type_obj->labels->name;
+        
+        if ($archive_link) {
+          echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url($archive_link) . '">' . esc_html($archive_title) . '</a></li>' . PHP_EOL;
         }
       }
+      // Regular posts - show categories
+      elseif ($post_type === 'post') {
+        $cat_ids = wp_get_post_categories(get_the_ID());
+        foreach ($cat_ids as $cat_id) {
+          $cat = get_category($cat_id);
+          if ($cat && !is_wp_error($cat)) {
+            echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_term_link($cat)) . '">' . esc_html($cat->name) . '</a></li>' . PHP_EOL;
+          }
+        }
+      }
+      
+      // Current post title
       echo '<li class="breadcrumb-item active" aria-current="page">' . esc_html(get_the_title()) . '</li>' . PHP_EOL;
     }
     
@@ -102,7 +126,7 @@ if (!function_exists('the_breadcrumb')) :
     echo '</nav>' . PHP_EOL;
   }
 
-endif;
+endif; // End of the_breadcrumb() function
 
 
 /**
