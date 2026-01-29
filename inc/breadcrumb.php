@@ -30,7 +30,7 @@ if (!function_exists('the_breadcrumb')) :
     
     // Hook for custom breadcrumb handlers (WooCommerce, other CPTs, etc.)
     // If any handler returns true, it means it handled the breadcrumb and we should stop
-    $handled = apply_filters('bootscore_breadcrumb_handled', false);
+    $handled = apply_filters('bootscore/breadcrumb/handler', false);
     
     if (!$handled) {
       // ===== DEFAULT WORDPRESS PAGES =====
