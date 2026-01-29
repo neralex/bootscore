@@ -142,4 +142,4 @@ function bootscore_woocommerce_breadcrumb_handler($handled) {
   // Not a WooCommerce page we handle
   return $handled;
 }
-add_filter('bootscore_breadcrumb_handled', 'bootscore_woocommerce_breadcrumb_handler', 10, 1);
+add_filter('bootscore/breadcrumb/handler', 'bootscore_woocommerce_breadcrumb_handler', 10, 1);
