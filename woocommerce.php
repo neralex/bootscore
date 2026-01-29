@@ -2,7 +2,7 @@
 
 /**
  * The template for displaying all WooCommerce pages
- * Template Version: 6.3.1
+ * Template Version: 6.4.0
  *
  * This is the template that displays all pages by default.
  * Please note that this is the WordPress construct of pages
@@ -17,6 +17,7 @@
 // Exit if accessed directly
 defined('ABSPATH') || exit;
 
+
 get_header();
 ?>
 
@@ -26,7 +27,11 @@ get_header();
       <main id="main" class="site-main">
 
         <?php do_action( 'bootscore_after_primary_open', 'woocommerce' ); ?>
+        
+        <p>Default <code>the_breadcrumb</code></p>
+        <?php the_breadcrumb(); ?>
 
+        <p><code>woocommerce_breadcrumb</code>. Filter <code>bootscore/class/breadcrumb/item/link</code> does not work anymore because file <code>/woocommerce/global/breadcrumb.php</code> has been deleted</p>
         <?php woocommerce_breadcrumb(); ?>
 
         <div class="row">
