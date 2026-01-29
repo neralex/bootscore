@@ -28,12 +28,8 @@ get_header();
       <main id="main" class="site-main">
 
         <?php do_action( 'bootscore_after_primary_open', 'woocommerce' ); ?>
-        
-        <p>Default <code>the_breadcrumb</code></p>
-        <?php the_breadcrumb(); ?>
 
-        <p><code>woocommerce_breadcrumb</code>. Filter <code>bootscore/class/breadcrumb/item/link</code> does not work anymore because file <code>/woocommerce/global/breadcrumb.php</code> has been deleted</p>
-        <?php woocommerce_breadcrumb(); ?>
+        <?php the_breadcrumb(); ?>
 
         <div class="row">
           <div class="<?= esc_attr(apply_filters('bootscore/class/main/col', 'col')); ?>">
