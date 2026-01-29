@@ -14,6 +14,7 @@
  * @package Bootscore
  */
 
+
 // Exit if accessed directly
 defined('ABSPATH') || exit;
 

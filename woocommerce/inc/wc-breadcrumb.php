@@ -70,6 +70,28 @@ function bootscore_woocommerce_breadcrumb_handler($handled) {
     return true; // Mark as handled
   }
   
+  // Product tag
+  elseif (is_product_tag()) {
+    $current_term = get_queried_object();
+    
+    // Shop page link
+    $shop_page_id = wc_get_page_id('shop');
+    if ($shop_page_id && $shop_page_id > 0) {
+      echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_permalink($shop_page_id)) . '">' . esc_html(get_the_title($shop_page_id)) . '</a></li>' . PHP_EOL;
+    }
+    
+    // Current tag - WooCommerce format: "Products tagged "Hats""
+    echo '<li class="breadcrumb-item active" aria-current="page">' . 
+         sprintf(
+           /* translators: %s: product tag name */
+           esc_html__('Products tagged &ldquo;%s&rdquo;', 'woocommerce'),
+           esc_html($current_term->name)
+         ) . 
+         '</li>' . PHP_EOL;
+    
+    return true; // Mark as handled
+  }
+  
   // Single product
   elseif (is_product()) {
     // Shop page link
