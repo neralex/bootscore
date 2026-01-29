@@ -80,11 +80,44 @@ function bootscore_woocommerce_breadcrumb_handler($handled) {
       echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_permalink($shop_page_id)) . '">' . esc_html(get_the_title($shop_page_id)) . '</a></li>' . PHP_EOL;
     }
     
-    // Current tag - WooCommerce format: "Products tagged "Hats""
+    // Current tag - WooCommerce format with curly quotes
     echo '<li class="breadcrumb-item active" aria-current="page">' . 
          sprintf(
            /* translators: %s: product tag name */
            esc_html__('Products tagged &ldquo;%s&rdquo;', 'woocommerce'),
+           esc_html($current_term->name)
+         ) . 
+         '</li>' . PHP_EOL;
+    
+    return true; // Mark as handled
+  }
+  
+  // Product brand archive
+  elseif (is_tax(array('product_brand', 'brand', 'pa_brand', 'yith_product_brand', 'pwb-brand'))) {
+    $current_term = get_queried_object();
+    
+    // Shop page link
+    $shop_page_id = wc_get_page_id('shop');
+    if ($shop_page_id && $shop_page_id > 0) {
+      echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_permalink($shop_page_id)) . '">' . esc_html(get_the_title($shop_page_id)) . '</a></li>' . PHP_EOL;
+    }
+    
+    // Parent brands (if hierarchical)
+    if (isset($current_term->parent) && $current_term->parent) {
+      $ancestors = array_reverse(get_ancestors($current_term->term_id, $current_term->taxonomy));
+      foreach ($ancestors as $ancestor_id) {
+        $ancestor = get_term($ancestor_id, $current_term->taxonomy);
+        if ($ancestor && !is_wp_error($ancestor)) {
+          echo '<li class="breadcrumb-item"><a class="' . esc_attr(apply_filters('bootscore/class/breadcrumb/item/link', '')) . '" href="' . esc_url(get_term_link($ancestor)) . '">' . esc_html($ancestor->name) . '</a></li>' . PHP_EOL;
+        }
+      }
+    }
+    
+    // Current brand
+    echo '<li class="breadcrumb-item active" aria-current="page">' . 
+         sprintf(
+           /* translators: %s: brand name */
+           esc_html__('Brand: %s', 'woocommerce'),
            esc_html($current_term->name)
          ) . 
          '</li>' . PHP_EOL;
@@ -143,3 +176,4 @@ function bootscore_woocommerce_breadcrumb_handler($handled) {
   return $handled;
 }
 add_filter('bootscore/breadcrumb/handler', 'bootscore_woocommerce_breadcrumb_handler', 10, 1);
+
