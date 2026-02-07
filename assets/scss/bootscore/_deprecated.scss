@@ -1,5 +1,5 @@
 /*--------------------------------------------------------------
-Deprecated
+Deprecated - Bootscore v6.4.0. This code will be removed in v7.
 --------------------------------------------------------------*/
 
 
@@ -14,4 +14,18 @@ Deprecated
   p:not(:last-child) {
     margin-block-end: $spacer;
   }
+}
+
+
+//Add width-100 class to element to stretch it to the entire width of the screen when element is wrapped inside .container.
+.width-100 {
+  position: relative;
+  width: 100vw;
+  margin-left: -50vw;
+  left: 50%;
+}
+
+// Prevent horizontal scrollbars on Windows Chrome & Firefox when using width-100 class
+body {
+  overflow-x: hidden;
 }
