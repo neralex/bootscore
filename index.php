@@ -2,7 +2,7 @@
 
 /**
  * The main template file
- * Template Version: 6.3.1
+ * Template Version: 6.4.0
  *
  * This is the most generic template file in a WordPress theme
  * and one of the two required files for a theme (the other being style.css).
@@ -128,8 +128,13 @@ get_header();
                 <?php do_action('bootscore_after_loop', 'index'); ?>
 
               <div class="entry-footer">
+                
+                <?php do_action( 'bootscore_before_pagination', 'index' ); ?>
+                
                 <?php bootscore_pagination(); ?>
+                
               </div>
+              
             </div><!-- col -->
             <?php get_sidebar(); ?>
           </div><!-- row -->

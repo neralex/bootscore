@@ -61,6 +61,8 @@ get_header();
                 if (function_exists('bootscore_related_posts')) bootscore_related_posts(); 
               ?>
               
+              <?php do_action( 'bootscore_before_pagination', 'single' ); ?>
+              
               <nav aria-label="bs page navigation">
                 <ul class="pagination justify-content-center">
                   <li class="page-item">
