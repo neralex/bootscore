@@ -48,6 +48,8 @@ get_header();
 
                     <div class="<?= esc_attr(apply_filters('bootscore/class/loop/card/row', 'row g-0', 'index')); ?>">
 
+                      <?php do_action('bootscore_before_loop_thumbnail', 'index'); ?>
+                      
                       <?php if (has_post_thumbnail()) : ?>
                         <div class="<?= esc_attr(apply_filters('bootscore/class/loop/card/image/col', 'col-lg-6 col-xl-5 col-xxl-4', 'index')); ?>">
                           <a href="<?php the_permalink(); ?>">
@@ -55,6 +57,8 @@ get_header();
                           </a>
                         </div>
                       <?php endif; ?>
+                      
+                      <?php do_action('bootscore_after_loop_thumbnail', 'index'); ?>
 
                       <div class="<?= esc_attr(apply_filters('bootscore/class/loop/card/content/col', 'col', 'index')); ?>">
                         <div class="<?= esc_attr(apply_filters('bootscore/class/loop/card/body', 'card-body', 'index')); ?>">
@@ -72,8 +76,8 @@ get_header();
                           </div>
                           
                           <?php do_action('bootscore_before_loop_title', 'index'); ?>
-
-                          <a class="text-body text-decoration-none" href="<?php the_permalink(); ?>">
+                          
+                          <a class="<?= esc_attr(apply_filters('bootscore/class/loop/card/title/link', 'text-body text-decoration-none', 'index')); ?>" href="<?php the_permalink(); ?>">
                             <?php the_title('<h2 class="' . esc_attr(apply_filters('bootscore/class/loop/card/title', 'blog-post-title h5', 'index')) . '">', '</h2>'); ?>
                           </a>
                           
@@ -94,7 +98,7 @@ get_header();
 
                           <?php if (apply_filters('bootscore/loop/excerpt', true, 'index')) : ?>
                             <p class="<?= esc_attr(apply_filters('bootscore/class/loop/card-text/excerpt', 'card-text', 'index')); ?>">
-                              <a class="text-body text-decoration-none" href="<?php the_permalink(); ?>">
+                              <a class="<?= esc_attr(apply_filters('bootscore/class/loop/card-text/excerpt/link', 'text-body text-decoration-none', 'index')); ?>" href="<?php the_permalink(); ?>">
                                 <?= esc_html(wp_strip_all_tags(get_the_excerpt())); ?>
                               </a>
                             </p>
@@ -111,6 +115,8 @@ get_header();
                           <?php if (apply_filters('bootscore/loop/tags', true, 'index')) : ?>
                             <?php bootscore_tags(); ?>
                           <?php endif; ?>
+                          
+                          <?php do_action('bootscore_after_loop_tags', 'index'); ?>
 
                         </div>
 
