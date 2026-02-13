@@ -78,7 +78,52 @@ if (!function_exists('bootscore_register_navwalker')) :
         $attributes .= !empty($item->xfn) ? ' rel="' . esc_attr($item->xfn) . '"' : '';
         $attributes .= !empty($item->url) ? ' href="' . esc_attr($item->url) . '"' : '';
 
-        $active_class = ($item->current || $item->current_item_ancestor || in_array("current_page_parent", $item->classes, true) || in_array("current-post-ancestor", $item->classes, true)) ? 'active' : '';
+        // active_class start
+        $classes = (array) $item->classes;
+
+        /**
+         * 1) Keep standard WordPress core signals
+         */
+        $is_core_current = (
+            $item->current
+            || $item->current_item_ancestor
+            || in_array('current-post-ancestor', $classes, true)
+        );
+
+        /**
+         * 2) Keep CPT archive menu items active on CPT singles as well (generic, no hardcoding)
+         *    menu-item-type-post_type_archive => $item->type === 'post_type_archive'
+         *    The post type slug is stored in $item->object
+         */
+        $is_cpt_archive_item = (isset($item->type) && $item->type === 'post_type_archive' && !empty($item->object));
+        $is_cpt_context_for_item = ($is_cpt_archive_item && (is_post_type_archive($item->object) || is_singular($item->object)));
+
+        /**
+         * 3) Do NOT evaluate current_page_parent globally; only where it is semantically reliable:
+         *    - real page hierarchy (page context)
+         *    - the Posts page (page_for_posts) only in blog context (not on CPT archives/singles)
+         */
+        $is_page_context = (is_page() || is_singular('page'));
+
+        $is_posts_page_item = (
+            !empty($item->object)
+            && $item->object === 'page'
+            && (int) $item->object_id === (int) get_option('page_for_posts')
+        );
+
+        $is_blog_context = (is_home() || is_singular('post') || is_category() || is_tag() || is_date() || is_author());
+
+        $is_current_page_parent_safe = (
+            in_array('current_page_parent', $classes, true)
+            && (
+                $is_page_context
+                || ($is_posts_page_item && $is_blog_context)
+            )
+        );
+
+        $active_class = ($is_cpt_context_for_item || $is_core_current || $is_current_page_parent_safe) ? 'active' : '';
+        // fix end
+
         $nav_link_class = ( $depth > 0 ) ? 'dropdown-item ' : 'nav-link ';
         $attributes .= ( $args->walker->has_children ) ? ' class="'. $nav_link_class . $active_class . ' dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"' : ' class="'. $nav_link_class . $active_class . '"';
 
