@@ -511,7 +511,7 @@ msgstr ""
 
 #: footer.php:96
 msgid "Return to top"
-msgstr ""
+msgstr "Zurück zum Seitenanfang"
 
 #: inc/comments.php:125
 msgid ""
@@ -550,7 +550,7 @@ msgstr "Weiter zum Inhalt"
 
 #: header.php:36
 msgid "Skip to footer"
-msgstr "Weiter zum zum Fuß der Seite"
+msgstr "Weiter zum Fuß der Seite"
 
 #: woocommerce/inc/wc-ajax-login.php:83
 msgid "Slow down a bit."
