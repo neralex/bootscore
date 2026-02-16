@@ -82,12 +82,15 @@ if (!function_exists('bootscore_register_navwalker')) :
         $classes = (array) $item->classes;
 
         /**
-         * 1) Keep standard WordPress core signals
+         * 1) Keep standard WordPress core signals (extended to include the canonical menu classes)
          */
         $is_core_current = (
             $item->current
             || $item->current_item_ancestor
             || in_array('current-post-ancestor', $classes, true)
+            || in_array('current-menu-item', $classes, true)
+            || in_array('current-menu-parent', $classes, true)
+            || in_array('current-menu-ancestor', $classes, true)
         );
 
         /**
@@ -95,34 +98,65 @@ if (!function_exists('bootscore_register_navwalker')) :
          *    menu-item-type-post_type_archive => $item->type === 'post_type_archive'
          *    The post type slug is stored in $item->object
          */
-        $is_cpt_archive_item = (isset($item->type) && $item->type === 'post_type_archive' && !empty($item->object));
-        $is_cpt_context_for_item = ($is_cpt_archive_item && (is_post_type_archive($item->object) || is_singular($item->object)));
+        $is_cpt_active = (
+            isset($item->type) 
+            && $item->type === 'post_type_archive' 
+            && !empty($item->object)
+            && (is_post_type_archive($item->object) || is_singular($item->object))
+        );
 
         /**
          * 3) Do NOT evaluate current_page_parent globally; only where it is semantically reliable:
          *    - real page hierarchy (page context)
          *    - the Posts page (page_for_posts) only in blog context (not on CPT archives/singles)
          */
-        $is_page_context = (is_page() || is_singular('page'));
-
-        $is_posts_page_item = (
-            !empty($item->object)
-            && $item->object === 'page'
-            && (int) $item->object_id === (int) get_option('page_for_posts')
-        );
-
+        $page_for_posts = (int) get_option('page_for_posts');
+        $is_posts_page = (!empty($item->object_id) && (int) $item->object_id === $page_for_posts);
         $is_blog_context = (is_home() || is_singular('post') || is_category() || is_tag() || is_date() || is_author());
 
-        $is_current_page_parent_safe = (
+        $is_safe_page_parent = (
             in_array('current_page_parent', $classes, true)
             && (
-                $is_page_context
-                || ($is_posts_page_item && $is_blog_context)
+                is_page() // Real page hierarchy
+                || ($is_posts_page && $is_blog_context) // Posts page only in blog context
             )
         );
 
-        $active_class = ($is_cpt_context_for_item || $is_core_current || $is_current_page_parent_safe) ? 'active' : '';
-        // fix end
+        /**
+         * 4) WooCommerce-specific handling
+         *    - Keep Shop page active in WooCommerce context (products, categories, tags, single products)
+         *    - Keep product category/tag menu items active on their own archive pages
+         */
+        $is_wc_active = false;
+        if (class_exists('WooCommerce')) {
+            $shop_id = (int) wc_get_page_id('shop');
+            $is_shop_page = (!empty($item->object_id) && (int) $item->object_id === $shop_id);
+            $is_wc_context = (is_woocommerce() || is_shop() || is_product_category() || is_product_tag() || is_singular('product'));
+            
+            // Shop page active in WooCommerce context
+            $is_wc_shop_active = ($is_shop_page && $is_wc_context);
+            
+            // WooCommerce taxonomy menu items (categories/tags)
+            $is_wc_term = (
+                in_array($item->object, ['product_cat', 'product_tag'], true)
+                && !empty($item->object_id)
+            );
+            $is_wc_term_active = false;
+            if ($is_wc_term && (is_product_category() || is_product_tag())) {
+                $queried = get_queried_object();
+                $is_wc_term_active = ($queried && !empty($queried->term_id) && (int) $queried->term_id === (int) $item->object_id);
+            }
+            
+            $is_wc_active = ($is_wc_shop_active || $is_wc_term_active);
+        }
+
+        $active_class = (
+            $is_core_current
+            || $is_cpt_active
+            || $is_safe_page_parent
+            || $is_wc_active
+        ) ? 'active' : '';
+        // active_class end
 
         $nav_link_class = ( $depth > 0 ) ? 'dropdown-item ' : 'nav-link ';
         $attributes .= ( $args->walker->has_children ) ? ' class="'. $nav_link_class . $active_class . ' dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"' : ' class="'. $nav_link_class . $active_class . '"';
