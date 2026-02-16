@@ -4,7 +4,7 @@
  * Navwalker
  *
  * @package Bootscore
- * @version 6.3.1
+ * @version 6.4.0
  */
 
 
